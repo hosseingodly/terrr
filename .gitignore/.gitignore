@@ -1,0 +1,28 @@
+<?php
+
+//telegram sdk and configuration
+$client = new Zelenin\Telegram\Bot\Api('someRandomToken');
+
+$update = json_decode(file_get_contents('php://input'));
+
+//your app
+try {
+
+    if($update->message->text != '/next_event_datetime')
+        exit;
+    
+    $dom = Sunra\PhpSimple\HtmlDomParser::file_get_html('http://laratalks.com/');
+    $element = $dom->find('#location header.section-header h3', 0);
+    $dateTime = $element->plaintext;
+    
+    $response = $client->sendMessage([
+        'chat_id' => $update->message->chat->id,
+        'text' => $dateTime
+    ]);
+
+} catch (\Zelenin\Telegram\Bot\NotOkException $e) {
+
+    //echo error message ot log it
+    //echo $e->getMessage();
+
+}
